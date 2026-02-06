@@ -37,8 +37,9 @@ COPY . .
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Expose the API port
+# Expose the API port and Studio port
 EXPOSE 3002
+EXPOSE 3000
 
-# Start the server (push schema first)
-CMD ["sh", "-c", "npx prisma db push && npm run server"]
+# Start the server (push schema first, then run both studio and server)
+CMD ["sh", "-c", "npx prisma db push && npm start"]

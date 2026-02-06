@@ -11,7 +11,7 @@
     "still:appstore": "remotion still AppStoreCard out/appstore-card.png --props=presets/app-store-card/last.json",
     "prestart": "npm run scan:videos && npm run scan:presets",
     "start": "npm-run-all --parallel studio server",
-    "studio": "remotion studio",
+    "studio": "remotion studio --host=0.0.0.0 --port=3000",
     "server": "node server/server.mjs",
     "prebuild": "npm run scan:videos",
     "build": "remotion render DemoVideo out/demo.mp4",

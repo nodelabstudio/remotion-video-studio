@@ -22,12 +22,51 @@
         <div id="protectedContent" class="content">
             Loading protected data...
         </div>
+
+        <div style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
+            <h3>Video Studio</h3>
+            <p>Launch the Remotion Studio to edit your videos.</p>
+            
+            <div id="studioConfig" style="margin-bottom: 1rem;">
+                <label for="studioUrl" style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem;">Studio URL (from Railway):</label>
+                <input type="text" id="studioUrl" placeholder="https://...up.railway.app" style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem;">
+                <button id="saveStudioUrl" style="float: none; background-color: #6c757d;">Save URL</button>
+            </div>
+
+            <a id="openStudioBtn" href="#" target="_blank" style="display: none; text-decoration: none;">
+                <button style="float: none; background-color: #007bff; width: 100%;">Open Remotion Studio</button>
+            </a>
+        </div>
     </div>
 
     <script>
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('accessToken');
             window.location.href = '/';
+        });
+
+        // Studio URL Logic
+        const studioUrlInput = document.getElementById('studioUrl');
+        const saveStudioUrlBtn = document.getElementById('saveStudioUrl');
+        const openStudioBtn = document.getElementById('openStudioBtn');
+        const studioConfigDiv = document.getElementById('studioConfig');
+
+        const savedUrl = localStorage.getItem('remotionStudioUrl');
+        if (savedUrl) {
+            studioUrlInput.value = savedUrl;
+            openStudioBtn.href = savedUrl;
+            openStudioBtn.style.display = 'block';
+            studioConfigDiv.style.display = 'none'; // Hide config if set
+        }
+
+        saveStudioUrlBtn.addEventListener('click', () => {
+            const url = studioUrlInput.value.trim();
+            if (url) {
+                localStorage.setItem('remotionStudioUrl', url);
+                openStudioBtn.href = url;
+                openStudioBtn.style.display = 'block';
+                studioConfigDiv.style.display = 'none';
+            }
         });
 
         async function loadProtectedData() {
