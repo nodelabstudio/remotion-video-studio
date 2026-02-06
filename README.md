@@ -104,31 +104,30 @@ public/
 
 ## Adding Your Own Content
 
-### Videos
+The studio automatically detects new files in the `public/` directory.
 
-Drop `.mov` or `.mp4` files into `public/`, then add them to the enum in `src/schema.ts`:
+### Local Workflow
+1.  **Videos:** Drop `.mov` or `.mp4` files into `public/`.
+2.  **Screenshots:** Place images in `public/screens/`.
+3.  **Backgrounds:** Place images/videos in `public/backgrounds/`.
+4.  **Audio:** Place `.mp3` files in `public/audio/`.
+5.  **Scan:** Run the scan scripts to update the dropdown menus:
+    ```bash
+    npm run scan:videos
+    ```
+6.  **Restart Studio:** The new files will now appear in the sidebar dropdowns.
 
-```typescript
-videoFile: z.enum(["your_video.mp4", ...])
-```
-
-### App Icons
-
-Add your icon to `public/` and update the `appIconFile` prop.
-
-### App Store Card Screens
-
-Place App Store screenshot images in `public/screens/` and reference them as `screens/your-file.png` in the `AppStoreCard` composition.
-
-### Exporting App Store Cards
-
-Render a still image (PNG) from the `AppStoreCard` composition:
-
-```bash
-npm run still:appstore
-```
-
-This uses `presets/app-store-card/last.json` to populate the props.
+### Production Workflow (Railway)
+Since the production environment is read-only, you must add assets via Git:
+1.  Add your files to the appropriate subfolders in `public/` on your local machine.
+2.  Run `npm run scan:videos` locally to update the internal manifests.
+3.  **Commit and Push** the changes to GitHub:
+    ```bash
+    git add .
+    git commit -m "Add new marketing assets"
+    git push origin main
+    ```
+4.  Railway will automatically rebuild and deploy your app with the new assets included.
 
 ---
 
