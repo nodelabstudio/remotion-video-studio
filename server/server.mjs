@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import pkg from '@prisma/client';
 const { PrismaClient } = pkg;
@@ -119,6 +120,31 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/protected', authenticateToken, (req, res) => {
   res.json({ message: 'This is protected data!', user: req.user });
 });
+
+// --- Proxy to Remotion Studio ---
+
+// 1. Specific route for /studio -> redirects to Studio root
+app.use('/studio', createProxyMiddleware({
+  target: 'http://127.0.0.1:3000',
+  changeOrigin: true,
+  ws: true, // Enable Websocket support for HMR
+  pathRewrite: {
+    '^/studio': '', // Remove /studio from the path
+  },
+}));
+
+// 2. Fallback for everything else (assets, HMR, internal Studio API)
+// This will only trigger if no other Express route (static or API) matched.
+app.use('/', createProxyMiddleware({
+  target: 'http://127.0.0.1:3000',
+  changeOrigin: true,
+  ws: true,
+  // We don't rewrite path here because we want /main.js to go to /main.js on port 3000
+  onError: (err, req, res) => {
+    console.error('Proxy Error:', err);
+    res.status(500).send('Proxy Error');
+  }
+}));
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
