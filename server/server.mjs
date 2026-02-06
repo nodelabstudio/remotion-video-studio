@@ -84,7 +84,10 @@ app.post('/api/register', async (req, res) => {
 // User login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log(`[Login Attempt] Email: ${email}`); // Log the email attempting to login
+
   if (!email || !password) {
+    console.log('[Login Failed] Missing email or password');
     return res.status(400).send('Email and password are required');
   }
 
@@ -92,19 +95,22 @@ app.post('/api/login', async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
+      console.log(`[Login Failed] User not found: ${email}`);
       return res.status(400).send('Invalid email or password');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log(`[Login Failed] Password mismatch for: ${email}`);
       return res.status(400).send('Invalid email or password');
     }
 
     // Generate JWT
+    console.log(`[Login Success] User: ${email}`);
     const accessToken = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ message: 'Login successful', accessToken });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[Login Error] Internal Server Error:', error);
     res.status(500).send('Internal server error');
   }
 });

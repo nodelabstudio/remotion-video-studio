@@ -43,16 +43,23 @@
                     body: JSON.stringify({ email, password })
                 });
 
-                const data = await response.json();
-
                 if (response.ok) {
+                    const data = await response.json();
                     localStorage.setItem('accessToken', data.accessToken);
                     window.location.href = '/dashboard.html';
                 } else {
-                    messageDiv.textContent = data.message || 'Login failed';
+                    // Try to parse JSON error message, fallback to text
+                    try {
+                        const errorData = await response.json();
+                        messageDiv.textContent = errorData.message || 'Login failed';
+                    } catch (e) {
+                         const errorText = await response.text();
+                         messageDiv.textContent = errorText || 'Login failed';
+                    }
                 }
             } catch (error) {
-                messageDiv.textContent = 'An error occurred. Please try again.';
+                console.error('Login error:', error);
+                messageDiv.textContent = 'Network error. Please try again.';
             }
         });
     </script>
