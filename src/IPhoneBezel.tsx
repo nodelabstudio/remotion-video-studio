@@ -1,13 +1,27 @@
 import React from "react";
 
+interface BezelColors {
+  gradient: string;
+  border: string;
+  button: string;
+  glow?: string;
+}
+
 interface IPhoneBezelProps {
   children: React.ReactNode;
   scale?: number;
+  colors?: BezelColors;
 }
 
 export const IPhoneBezel: React.FC<IPhoneBezelProps> = ({
   children,
   scale = 1,
+  colors = {
+    gradient: "linear-gradient(145deg, #f0e6d2 0%, #c8a464 100%)",
+    border: "#d4af37",
+    button: "#b8860b",
+    glow: "rgba(212, 175, 55, 0.3)",
+  },
 }) => {
   // iPhone 16 Pro dimensions (approximate ratios for bezel)
   const screenWidth = 393;
@@ -16,6 +30,12 @@ export const IPhoneBezel: React.FC<IPhoneBezelProps> = ({
   const borderRadius = 55;
   const frameWidth = screenWidth + bezelPadding * 2;
   const frameHeight = screenHeight + bezelPadding * 2;
+
+  const buttonStyle: React.CSSProperties = {
+    position: "absolute",
+    backgroundColor: colors.button,
+    borderRadius: "2px 0 0 2px",
+  };
 
   return (
     <div
@@ -29,65 +49,25 @@ export const IPhoneBezel: React.FC<IPhoneBezelProps> = ({
         style={{
           width: frameWidth,
           height: frameHeight,
-          background: "linear-gradient(145deg, #f0e6d2 0%, #c8a464 100%)", // Gold gradient
+          background: colors.gradient,
           borderRadius: borderRadius,
           padding: bezelPadding,
           boxShadow: `
-            0 0 0 2px #d4af37, 
-            0 0 0 4px #b8860b,
-            0 25px 50px -12px rgba(0, 0, 0, 0.4),
-            0 0 80px rgba(212, 175, 55, 0.3)
+            0 0 0 2px ${colors.border}, 
+            0 0 0 4px ${colors.button},
+            0 25px 50px -12px rgba(0, 0, 0, 0.4)
+            ${colors.glow ? `, 0 0 80px ${colors.glow}` : ''}
           `,
           position: "relative",
         }}
       >
         {/* Side Buttons - Left (Silent Switch + Volume) */}
-        <div
-          style={{
-            position: "absolute",
-            left: -4,
-            top: 120,
-            width: 4,
-            height: 28,
-            backgroundColor: "#b8860b", // Darker gold
-            borderRadius: "2px 0 0 2px",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: -4,
-            top: 180,
-            width: 4,
-            height: 55,
-            backgroundColor: "#b8860b",
-            borderRadius: "2px 0 0 2px",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: -4,
-            top: 245,
-            width: 4,
-            height: 55,
-            backgroundColor: "#b8860b",
-            borderRadius: "2px 0 0 2px",
-          }}
-        />
+        <div style={{ ...buttonStyle, left: -4, top: 120, width: 4, height: 28 }} />
+        <div style={{ ...buttonStyle, left: -4, top: 180, width: 4, height: 55 }} />
+        <div style={{ ...buttonStyle, left: -4, top: 245, width: 4, height: 55 }} />
 
         {/* Side Button - Right (Power) */}
-        <div
-          style={{
-            position: "absolute",
-            right: -4,
-            top: 200,
-            width: 4,
-            height: 80,
-            backgroundColor: "#b8860b",
-            borderRadius: "0 2px 2px 0",
-          }}
-        />
+        <div style={{ ...buttonStyle, right: -4, top: 200, width: 4, height: 80, borderRadius: "0 2px 2px 0" }} />
 
         {/* Screen Container */}
         <div

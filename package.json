@@ -3,7 +3,17 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "remotion studio",
+    "scan:videos": "node scripts/scan-videos.js",
+    "scan:presets": "node scripts/scan-presets.js",
+    "preset:load": "node scripts/load-preset.js",
+    "preset:save": "node scripts/save-preset.js",
+    "preset:watch": "node scripts/watch-presets.js",
+    "still:appstore": "remotion still AppStoreCard out/appstore-card.png --props=presets/app-store-card/last.json",
+    "prestart": "npm run scan:videos && npm run scan:presets",
+    "start": "npm-run-all --parallel studio server",
+    "studio": "remotion studio",
+    "server": "node server/server.mjs",
+    "prebuild": "npm run scan:videos",
     "build": "remotion render DemoVideo out/demo.mp4",
     "render": "remotion render DemoVideo out/demo.mp4"
   },
@@ -12,13 +22,33 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "@remotion/bundler": "^4.0.410",
-    "@remotion/cli": "^4.0.410",
+    "@remotion/cli": "^4.0.419",
+    "@remotion/zod-types": "^4.0.410",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "lowdb": "^7.0.1",
+    "npm-run-all": "^4.1.5",
+    "pg": "^8.18.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "remotion": "^4.0.410",
-    "typescript": "^5.9.3"
+    "remotion": "^4.0.419",
+    "typescript": "^5.9.3",
+    "zod": "^3.22.3"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "^3.8.1",
+    "prisma": "^7.3.0"
   }
 }

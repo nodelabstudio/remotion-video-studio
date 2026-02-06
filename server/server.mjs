@@ -1,0 +1,119 @@
+import express from 'express';
+import bodyParser from 'body-parser';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
+import pg from 'pg';
+const { Pool } = pg;
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const port = 3002;
+
+// --- Database Configuration ---
+const connectionString = process.env.DATABASE_URL || "postgresql://angelrodriguez@localhost:5432/remotion_app";
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+// ------------------------------
+
+// --- JWT Configuration ---
+// In a real application, this should be an environment variable.
+const JWT_SECRET = 'your_jwt_secret_key'; 
+// -------------------------
+
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../client')));
+
+// Enable CORS for all routes (for development purposes)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Allow all origins for now
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // Add Authorization header
+  next();
+});
+
+// Middleware to protect routes
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+  if (token == null) return res.sendStatus(401); // No token
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // Token not valid
+    req.user = user;
+    next();
+  });
+};
+
+// User registration
+app.post('/api/register', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).send('Email and password are required');
+  }
+
+  try {
+    const userExists = await prisma.user.findUnique({ where: { email } });
+    if (userExists) {
+      return res.status(400).send('User already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword
+      }
+    });
+
+    res.status(201).send('User created successfully');
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+// User login
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).send('Email and password are required');
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return res.status(400).send('Invalid email or password');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).send('Invalid email or password');
+    }
+
+    // Generate JWT
+    const accessToken = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({ message: 'Login successful', accessToken });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+// Protected route example
+app.get('/api/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'This is protected data!', user: req.user });
+});
+
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
+});

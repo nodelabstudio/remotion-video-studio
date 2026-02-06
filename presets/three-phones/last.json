@@ -1,0 +1,14 @@
+{
+  "screen1": "01_home_size.png",
+  "screen2": "02_customize_tasks.png",
+  "screen3": "03_room_select_exclude.png",
+  "spacing": 120,
+  "scale": 1,
+  "centerScale": 1,
+  "sideScale": 1,
+  "angle": 30,
+  "backgroundPreset": "lightGray",
+  "bezelColor": "silver",
+  "layoutMode": "3d",
+  "presetName": "none"
+}

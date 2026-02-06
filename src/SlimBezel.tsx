@@ -1,13 +1,26 @@
 import React from "react";
 
+interface BezelColors {
+  gradient: string;
+  border: string;
+  button: string;
+  glow?: string;
+}
+
 interface SlimBezelProps {
   children: React.ReactNode;
   scale?: number;
+  colors?: BezelColors;
 }
 
 export const SlimBezel: React.FC<SlimBezelProps> = ({
   children,
   scale = 1,
+  colors = {
+    gradient: "linear-gradient(145deg, #e0e0e0 0%, #b0b0b0 100%)",
+    border: "#c0c0c0",
+    button: "#8f8f8f",
+  },
 }) => {
   // Slim, modern dimensions
   const screenWidth = 400;
@@ -16,11 +29,10 @@ export const SlimBezel: React.FC<SlimBezelProps> = ({
   const borderRadius = 60;
   const frameWidth = screenWidth + bezelPadding * 2;
   const frameHeight = screenHeight + bezelPadding * 2;
-  const buttonColor = "#8f8f8f"; // Darker color for more visible buttons
 
   const buttonStyle: React.CSSProperties = {
     position: 'absolute',
-    backgroundColor: buttonColor,
+    backgroundColor: colors.button,
     boxShadow: '0px 0px 2px rgba(0,0,0,0.4)',
   };
 
@@ -36,13 +48,14 @@ export const SlimBezel: React.FC<SlimBezelProps> = ({
         style={{
           width: frameWidth,
           height: frameHeight,
-          background: "linear-gradient(145deg, #e0e0e0 0%, #b0b0b0 100%)",
+          background: colors.gradient,
           borderRadius: borderRadius,
           padding: bezelPadding,
           boxShadow: `
-            0 0 0 1px #c0c0c0,
-            0 0 0 3px #a0a0a0,
+            0 0 0 1px ${colors.border},
+            0 0 0 3px ${colors.border}80,
             0 15px 30px -10px rgba(0, 0, 0, 0.3)
+            ${colors.glow ? `, 0 0 60px ${colors.glow}` : ''}
           `,
           position: "relative",
         }}
